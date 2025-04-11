@@ -105,3 +105,8 @@
   text-align: center;
   margin-top: 1rem;
 }
+
+.hrmsbutton{
+  background-color: #f36527 !important;
+  border-color: #f36527 !important;
+}

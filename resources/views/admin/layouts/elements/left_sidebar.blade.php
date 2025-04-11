@@ -22,5 +22,12 @@
 				<div data-i18n="Dashboard">Dashboard</div>
 			</a>
 		</li>
+
+		<li class="menu-item {{ request()->is('admin/employee/*') ? 'active' : ''}}">
+			<a href="{{route('admin.employee.index')}}" class="menu-link">
+				<i class="menu-icon tf-icons bx bx-home-circle"></i>
+				<div data-i18n="Employee">Employee</div>
+			</a>
+		</li>
 	</ul>
 </aside>

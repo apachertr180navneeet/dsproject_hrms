@@ -6,7 +6,8 @@ use App\Http\Controllers\Web\{
 };
 
 use App\Http\Controllers\Admin\{
-    AdminAuthController
+    AdminAuthController,
+    EmployeeController
 };
 
 /*
@@ -24,33 +25,41 @@ use App\Http\Controllers\Admin\{
 Route::get('/', [HomeController::class, 'index'])->name('/');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-Route::name('admin.')->prefix('admin')->group(function () {
-    Route::get('/', [AdminAuthController::class, 'index']);
+Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('login', [AdminAuthController::class, 'login'])->name('login');
+    // Public routes (No auth middleware required)
+    Route::controller(AdminAuthController::class)->group(function () {
+        Route::get('/', 'index');
 
-    Route::post('login', [AdminAuthController::class, 'postLogin'])->name('login.post');
+        Route::get('login', 'login')->name('login');
+        Route::post('login', 'postLogin')->name('login.post');
 
-    Route::get('forget-password', [AdminAuthController::class, 'showForgetPasswordForm'])->name('forget.password.get');
+        Route::get('forget-password', 'showForgetPasswordForm')->name('forget.password.get');
+        Route::post('forget-password', 'submitForgetPasswordForm')->name('forget.password.post');
 
-    Route::post('forget-password', [AdminAuthController::class, 'submitForgetPasswordForm'])->name('forget.password.post');
+        Route::get('reset-password/{token}', 'showResetPasswordForm')->name('reset.password.get');
+        Route::post('reset-password', 'submitResetPasswordForm')->name('reset.password.post');
+    });
+    Route::middleware('admin')->group(function () {
+        // Protected admin routes (Requires admin middleware)
+        Route::controller(AdminAuthController::class)->group(function () {
+            Route::get('dashboard', 'adminDashboard')->name('dashboard');
 
-    Route::get('reset-password/{token}', [AdminAuthController::class, 'showResetPasswordForm'])->name('reset.password.get');
+            Route::get('change-password', 'changePassword')->name('change.password');
+            Route::post('update-password', 'updatePassword')->name('update.password');
 
-    Route::post('reset-password', [AdminAuthController::class, 'submitResetPasswordForm'])->name('reset.password.post');
+            Route::get('logout', 'logout')->name('logout');
 
-    Route::middleware(['admin'])->group(function () {
-    	Route::get('dashboard', [AdminAuthController::class, 'adminDashboard'])->name('dashboard');
+            Route::get('profile', 'adminProfile')->name('profile');
+            Route::post('profile', 'updateAdminProfile')->name('update.profile');
+        });
 
-        Route::get('change-password', [AdminAuthController::class, 'changePassword'])->name('change.password');
-
-        Route::post('update-password', [AdminAuthController::class, 'updatePassword'])->name('update.password');
-
-        Route::get('logout', [AdminAuthController::class, 'logout'])->name('logout');
-
-        Route::get('profile', [AdminAuthController::class, 'adminProfile'])->name('profile');
-
-        Route::post('profile', [AdminAuthController::class, 'updateAdminProfile'])->name('update.profile');
+        Route::prefix('employee')->name('employee.')->controller(EmployeeController::class)->group(function () {
+            Route::get('index', 'index')->name('index');
+            Route::get('get-all', 'getall')->name('getall');
+            Route::get('add', 'add')->name('add');
+            Route::delete('/delete/{id}', 'destroy')->name('destroy');
+        });
     });
 
 });

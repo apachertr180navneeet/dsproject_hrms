@@ -23,6 +23,9 @@
         <script src="{{asset('assets/admin/vendor/js/helpers.js')}}"></script>
         <script src="{{asset('assets/admin/js/config.js')}}"></script>
         <link rel="stylesheet" href="{{asset('assets/admin/css/sweet-alert.css')}}" />
+        <!-- Add this in your <head> or before </body> -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>            
         @yield('style')
         <style>
             .hrmslogo{

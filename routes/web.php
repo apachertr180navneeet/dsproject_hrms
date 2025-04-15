@@ -7,7 +7,8 @@ use App\Http\Controllers\Web\{
 
 use App\Http\Controllers\Admin\{
     AdminAuthController,
-    EmployeeController
+    EmployeeController,
+    AttendenceController
 };
 
 /*
@@ -57,6 +58,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('employee')->name('employee.')->controller(EmployeeController::class)->group(function () {
             Route::get('index', 'index')->name('index');
             Route::get('get-all', 'getall')->name('getall');
+            Route::get('add', 'add')->name('add');
+            Route::delete('/delete/{id}', 'destroy')->name('destroy');
+        });
+        Route::prefix('attendence')->name('attendence.')->controller(AttendenceController::class)->group(function () {
+            Route::get('index', 'index')->name('index');
             Route::get('add', 'add')->name('add');
             Route::delete('/delete/{id}', 'destroy')->name('destroy');
         });

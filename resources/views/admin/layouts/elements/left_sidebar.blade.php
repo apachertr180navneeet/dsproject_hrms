@@ -29,5 +29,12 @@
 				<div data-i18n="Employee">Employee</div>
 			</a>
 		</li>
+
+		<li class="menu-item {{ request()->is('admin/attendence/*') ? 'active' : ''}}">
+			<a href="{{route('admin.attendence.index')}}" class="menu-link">
+				<i class="menu-icon tf-icons bx bx-home-circle"></i>
+				<div data-i18n="Attendence">Attendence</div>
+			</a>
+		</li>
 	</ul>
 </aside>

@@ -6,22 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class UserDetail extends Model
+class UserAttendances extends Model
 {
-    use HasFactory , SoftDeletes;
-
+    use HasFactory, SoftDeletes;
 
     // Table name (optional, if different from plural model name)
-    protected $table = 'user_details';
+    protected $table = 'user_attendances';
 
     // Mass assignable fields
     protected $fillable = [
         'user_id',
-        'ni_number',
-        'utr_number',
-        'refrence_name',
-        'refrence_phone',
-        'Joing_date',
-        'base_salary'
+        'date',
+        'status',
+        'expiring_date'
     ];
 }

@@ -15,6 +15,23 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable ,SoftDeletes;
 
+    // Table name (optional, if different from plural model name)
+    protected $table = 'users';
+
+    // Mass assignable fields
+    protected $fillable = [
+        'full_name',
+        'email',
+        'phone',
+        'address',
+        'date_of_birth',
+        'alternative_phone',
+        'password',
+        'role',
+        'date_of_joing',
+        'status'
+    ];
+
     /**
      * The attributes that are mass assignable.
      *

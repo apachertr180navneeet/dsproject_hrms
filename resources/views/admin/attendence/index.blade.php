@@ -33,12 +33,43 @@
                       </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
-                      <tr>
-                        <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <span class="fw-medium">Angular Project</span></td>
-                        @for ($day = 1; $day <= $totalDays; $day++)
-                            <td>P</td> {{-- You can dynamically show P/A/L etc. here --}}
-                        @endfor
-                      </tr>
+                        @foreach($employees as $key => $employee)
+                            <tr>
+                                <td><i class="fab fa-angular fa-lg text-danger me-3"></i> 
+                                    <span class="fw-medium">{{ $employee->full_name }}</span>
+                                </td>
+                                @for ($day = 1; $day <= $totalDays; $day++)
+                                    @php
+                                        $key = $employee->id . '_' . $day;
+                                        $status = isset($attendances[$key]) ? $attendances[$key][0]->status : '-';
+                                        $currentDay = \Carbon\Carbon::now()->day;
+                                        $shortStatus = $status; // P, A, L, etc.
+
+                                        // Determine color class based on status
+                                        $colorClass = match($shortStatus) {
+                                            'P' => 'text-success fw-bolder',
+                                            'A' => 'text-danger fw-bolder',
+                                            'L' => 'text-warning fw-bolder',
+                                            default => 'text-muted fw-bolder', // For "-"
+                                        };
+
+                                        // Use text-secondary for today's date instead
+                                        $tdClass = $colorClass;
+                                        if ($day == $currentDay) {
+                                            $tdClass .= ' bg-light'; // You can also use 'border border-primary' or 'bg-info' etc.
+                                        }
+
+                                        $currentDate = \Carbon\Carbon::now()->toDateString();
+
+                                    @endphp
+                                    <td class="{{ $tdClass }} addatendence">
+                                        <input type="hidden" name="user_id" id="user_id" data-id= {{ $employee->id }} value="{{ $employee->id }}">
+                                        <input type="hidden" name="date" id="date" data-date= {{ $currentDate }} value="{{ $currentDate }}">
+                                        {{ $shortStatus }}
+                                    </td>
+                                @endfor
+                            </tr>
+                        @endforeach
                     </tbody>
                   </table>
                 </div>
@@ -46,37 +77,83 @@
         </div>
     </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="attendanceModal" tabindex="-1" aria-labelledby="attendanceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="attendanceModalLabel">Update Attendance</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="attendanceForm">
+            <input type="hidden" name="user_id" id="modal_user_id">
+            <input type="hidden" name="date" id="modal_date">
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" name="status" id="modal_status">
+                    <option value="P">Present</option>
+                    <option value="A">Absent</option>
+                    <option value="L">Leave</option>
+                </select>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="saveAttendance" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 @endsection
 @section('script')
-    <script>
-        function deletes(userid){
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You want to delete this contacts!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes'
-            }).then((result) => {
-                if(result.isConfirmed == true) {
-                    var url = '{{ route("admin.employee.destroy", ":userid") }}';
-                    url = url.replace(':userid', userid);
-                    $.ajax({
-                        type: "DELETE",
-                        url: url,
-                        data: {'_token': "{{ csrf_token() }}"},
-                        success: function(response) {
-                            if(response.success){
-                                setFlesh('success','Employee Deleted Successfully');
-                                $('#dataTable').DataTable().ajax.reload();
-                            }else{
-                                setFlesh('error','There is some problem to delete feedback!Please try again');
-                            }
-                        }
-                    });
+<script>
+    let selectedCell; // to track which cell was clicked
+
+    $(document).on('click', '.addatendence', function () {
+        selectedCell = $(this);
+
+        const currentStatus = selectedCell.text().trim();
+        const userId = selectedCell.find('input[name="user_id"]').val();
+        const date = selectedCell.find('input[name="date"]').val();
+
+        $('#modal_user_id').val(userId);
+        $('#modal_date').val(date);
+        $('#modal_status').val(currentStatus);
+
+        $('#attendanceModal').modal('show');
+    });
+
+    $('#saveAttendance').on('click', function () {
+        const userId = $('#modal_user_id').val();
+        const date = $('#modal_date').val();
+        const status = $('#modal_status').val();
+
+        $.ajax({
+            url: '{{ route("admin.attendence.add") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                user_id: userId,
+                date: date,
+                status: status
+            },
+            success: function (response) {
+                if (response.success) {
+                    $('#attendanceModal').modal('hide');
+                    location.reload(); // reload page to reflect changes
+                } else {
+                    alert('Failed to update status.');
                 }
-            })
-        }
-    </script>
+            },
+            error: function () {
+                alert('Something went wrong while updating attendance.');
+            }
+        });
+    });
+</script>
+
+
 @endsection

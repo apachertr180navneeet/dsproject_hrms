@@ -7,8 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\{
     User,
-    UserDetail,
-    UserDocument,
+    UserAttendances
 };
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -18,13 +17,43 @@ class AttendenceController extends Controller
 {
     public function index()
     {
-        $totalDays = Carbon::now()->daysInMonth;
+        $now = Carbon::now();
+        $totalDays = $now->daysInMonth;
+        $currentMonthName = $now->format('F');
+        $currentYear = $now->year;
 
-        $currentMonthName = Carbon::now()->format('F');
+        // Get attendance for the current month
+        $startDate = Carbon::now()->startOfMonth()->toDateString();
+        $endDate = Carbon::now()->endOfMonth()->toDateString();
 
-        $currentYear = Carbon::now()->year;
+        $employees = User::where('role', 'user')->where('status', 'active')->orderBy('id', 'desc')->get();
 
-        return view("admin.attendence.index", compact('totalDays', 'currentMonthName', 'currentYear'));
+        // Loop through each day of the current month up to today
+        for ($day = 1; $day <= $now->day; $day++) {
+            $date = Carbon::createFromDate($currentYear, $now->month, $day)->toDateString();
+
+            foreach ($employees as $employee) {
+                $alreadyExists = UserAttendances::where('user_id', $employee->id)
+                    ->whereDate('date', $date)
+                    ->exists();
+
+                if (!$alreadyExists) {
+                    UserAttendances::create([
+                        'user_id' => $employee->id,
+                        'date' => $date,
+                        'status' => 'P',
+                    ]);
+                }
+            }
+        }
+
+        $attendances = UserAttendances::whereBetween('date', [$startDate, $endDate])
+        ->get()
+        ->groupBy(function ($item) {
+            return $item->user_id . '_' . Carbon::parse($item->date)->day;
+        });
+
+        return view("admin.attendence.index", compact('totalDays', 'currentMonthName', 'currentYear', 'employees','startDate','endDate','attendances'));
     }
     
     public function add()
@@ -49,4 +78,27 @@ class AttendenceController extends Controller
         }
 
     }
+
+    public function addattendence(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'date' => 'required|date',
+            'status' => 'required|in:P,A,L,-'
+        ]);
+
+        UserAttendances::updateOrInsert(
+            [
+                'user_id' => $request->user_id,
+                'date' => $request->date,
+            ],
+            [
+                'status' => $request->status,
+                'updated_at' => now()
+            ]
+        );
+
+        return response()->json(['success' => true, 'message' => 'Attendance updated']);
+    }
+
 }

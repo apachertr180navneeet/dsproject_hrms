@@ -60,10 +60,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('get-all', 'getall')->name('getall');
             Route::get('add', 'add')->name('add');
             Route::delete('/delete/{id}', 'destroy')->name('destroy');
+            Route::post('/save-basic-info', 'saveBasicInfo')->name('save.basic.info');
+            Route::post('/save-employee-detail', 'saveEmployeDetail')->name('save.employee.detail');
+            Route::post('/save-employee-document', 'saveEmployeDocument')->name('save.employee.document');
+            Route::get('edit/{id}', 'edit')->name('edit');
         });
         Route::prefix('attendence')->name('attendence.')->controller(AttendenceController::class)->group(function () {
             Route::get('index', 'index')->name('index');
-            Route::get('add', 'add')->name('add');
+            Route::post('add', 'addattendence')->name('add');
             Route::delete('/delete/{id}', 'destroy')->name('destroy');
         });
     });

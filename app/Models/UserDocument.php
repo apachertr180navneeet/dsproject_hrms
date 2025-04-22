@@ -20,4 +20,10 @@ class UserDocument extends Model
         'document_file',
         'expiring_date'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

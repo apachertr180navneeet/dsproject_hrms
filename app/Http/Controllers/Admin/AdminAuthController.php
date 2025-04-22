@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\{
-    User
+    User,
+    UserAttendances,
+    UserDocument
 };
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -271,7 +273,19 @@ class AdminAuthController extends Controller
 
     public function adminDashboard()
     {
-        return view("admin.dashboard.index");
+        $employee = User::where('role', 'user')->orderBy('id', 'desc')->count();
+
+        $attendancecount = UserAttendances::where('status', 'A')
+        ->whereDate('created_at', Carbon::today())
+        ->count();
+
+        $startDate = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now()->addMonths(2)->endOfMonth();
+
+        $documents = UserDocument::with('user')
+            ->whereBetween('expiring_date', [$startDate, $endDate])
+            ->get();
+        return view("admin.dashboard.index",compact('employee','attendancecount','documents'));
     }
 
 

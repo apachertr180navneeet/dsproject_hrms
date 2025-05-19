@@ -9,12 +9,9 @@
     <div class="row">
         <div class="col-md-6">
             <h4 class="py-3 mb-4">
-                <span class="">Attendence </span>
+                <span class="">Attendance</span>
             </h4>
         </div>
-        {{--  <div class="col-md-6 text-end">
-            <a href="{{route('admin.employee.add')}}" class="btn rounded-pill btn-outline-primary">Add +</a>
-        </div>  --}}
     </div>
     <div class="row">
         <div class="col-xl-12 col-lg-12">
@@ -33,38 +30,43 @@
                       </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
-                        @foreach($employees as $key => $employee)
+                        @foreach($employees as $employee)
                             <tr>
                                 <td><i class="fab fa-angular fa-lg text-danger me-3"></i> 
                                     <span class="fw-medium">{{ $employee->full_name }}</span>
                                 </td>
                                 @for ($day = 1; $day <= $totalDays; $day++)
                                     @php
+                                        $date = \Carbon\Carbon::create($currentYear, $currentMonth, $day);
+                                        $dayOfWeek = $date->format('l'); // e.g., 'Saturday'
                                         $key = $employee->id . '_' . $day;
-                                        $status = isset($attendances[$key]) ? $attendances[$key][0]->status : '-';
-                                        $currentDay = \Carbon\Carbon::now()->day;
-                                        $shortStatus = $status; // P, A, L, etc.
 
-                                        // Determine color class based on status
+                                        // Mark weekends as Leave
+                                        if (in_array($dayOfWeek, ['Saturday', 'Sunday'])) {
+                                            $status = 'L';
+                                        } else {
+                                            $status = isset($attendances[$key]) ? $attendances[$key][0]->status : '-';
+                                        }
+
+                                        $shortStatus = $status;
+
+                                        // Set text color based on status
                                         $colorClass = match($shortStatus) {
                                             'P' => 'text-success fw-bolder',
                                             'A' => 'text-danger fw-bolder',
                                             'L' => 'text-warning fw-bolder',
-                                            default => 'text-muted fw-bolder', // For "-"
+                                            default => 'text-muted fw-bolder',
                                         };
 
-                                        // Use text-secondary for today's date instead
+                                        // Add background highlight for current day
                                         $tdClass = $colorClass;
-                                        if ($day == $currentDay) {
-                                            $tdClass .= ' bg-light'; // You can also use 'border border-primary' or 'bg-info' etc.
+                                        if ($day == \Carbon\Carbon::now()->day) {
+                                            $tdClass .= ' bg-light';
                                         }
-
-                                        $currentDate = \Carbon\Carbon::now()->toDateString();
-
                                     @endphp
-                                    <td class="{{ $tdClass }} addatendence">
-                                        <input type="hidden" name="user_id" id="user_id" data-id= {{ $employee->id }} value="{{ $employee->id }}">
-                                        <input type="hidden" name="date" id="date" data-date= {{ $currentDate }} value="{{ $currentDate }}">
+                                    <td class="{{ $tdClass }} {{ in_array($dayOfWeek, ['Saturday', 'Sunday']) ? '' : 'addatendence' }}">
+                                        <input type="hidden" name="user_id" value="{{ $employee->id }}">
+                                        <input type="hidden" name="date" value="{{ $date->toDateString() }}">
                                         {{ $shortStatus }}
                                     </td>
                                 @endfor
@@ -77,6 +79,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modal -->
 <div class="modal fade" id="attendanceModal" tabindex="-1" aria-labelledby="attendanceModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -108,9 +111,10 @@
 </div>
 
 @endsection
+
 @section('script')
 <script>
-    let selectedCell; // to track which cell was clicked
+    let selectedCell;
 
     $(document).on('click', '.addatendence', function () {
         selectedCell = $(this);
@@ -143,7 +147,7 @@
             success: function (response) {
                 if (response.success) {
                     $('#attendanceModal').modal('hide');
-                    location.reload(); // reload page to reflect changes
+                    location.reload();
                 } else {
                     alert('Failed to update status.');
                 }
@@ -154,6 +158,4 @@
         });
     });
 </script>
-
-
 @endsection

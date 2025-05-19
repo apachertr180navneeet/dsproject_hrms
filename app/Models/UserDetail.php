@@ -21,6 +21,7 @@ class UserDetail extends Model
         'utr_number',
         'refrence_name',
         'refrence_phone',
+        'refrence_realtion',
         'Joing_date',
         'base_salary'
     ];

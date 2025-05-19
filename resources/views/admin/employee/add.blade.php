@@ -58,7 +58,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="base_salary" class="form-label">Base Salary</label>
                                     <div class="input-group input-group-merge">
-                                        <span class="input-group-text">€</span>
+                                        <span class="input-group-text">£</span>
                                         <input type="number" class="form-control" placeholder="Enter Base Salary" id="base_salary" name="base_salary" min="0" />
                                         <span class="input-group-text">.00</span>
                                     </div>
@@ -77,11 +77,15 @@
                         <form id="employeeinfoForm" enctype="multipart/form-data">
                             <div class="row">
                                 <input type="hidden" id="employee_id" name="employee_id" value=""/>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="refrence_name" class="form-label">Refrence Name</label>
                                     <input type="text" class="form-control" id="refrence_name" name="refrence_name" placeholder="Enter Reference Name"/>
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
+                                    <label for="refrence_realtion" class="form-label">Refrence Relation</label>
+                                    <input type="text" class="form-control" id="refrence_realtion" name="refrence_realtion" placeholder="Enter Reference Relation"/>
+                                </div>
+                                <div class="col-md-4 mb-3">
                                     <label for="refrence_phone" class="form-label">Refrence Phone</label>
                                     <input type="tel" class="form-control" id="refrence_phone" name="refrence_phone" placeholder="Enter Reference Phone"/>
                                 </div>

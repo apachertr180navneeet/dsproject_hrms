@@ -21,6 +21,7 @@ class AttendenceController extends Controller
         $totalDays = $now->daysInMonth;
         $currentMonthName = $now->format('F');
         $currentYear = $now->year;
+        $currentMonth = Carbon::now()->month;
 
         // Get attendance for the current month
         $startDate = Carbon::now()->startOfMonth()->toDateString();
@@ -53,7 +54,7 @@ class AttendenceController extends Controller
             return $item->user_id . '_' . Carbon::parse($item->date)->day;
         });
 
-        return view("admin.attendence.index", compact('totalDays', 'currentMonthName', 'currentYear', 'employees','startDate','endDate','attendances'));
+        return view("admin.attendence.index", compact('totalDays', 'currentMonthName', 'currentYear', 'employees','startDate','endDate','attendances','currentMonth'));
     }
     
     public function add()

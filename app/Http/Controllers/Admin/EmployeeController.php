@@ -164,6 +164,7 @@ class EmployeeController extends Controller
             'employee_id'     => 'required|integer',
             'refrence_name'   => 'required|string|max:100',
             'refrence_phone'  => 'required|string|max:100',
+            'refrence_realtion'=> 'required|string|max:100',
             'ni_number'       => 'required|string|max:100',
             'utr_number'      => 'required|string|max:100',
         ];
@@ -187,6 +188,7 @@ class EmployeeController extends Controller
             $userDetail->ni_number       = $request->ni_number;
             $userDetail->utr_number      = $request->utr_number;
             $userDetail->refrence_name   = $request->refrence_name;
+            $userDetail->refrence_realtion   = $request->refrence_realtion;
             $userDetail->refrence_phone  = $request->refrence_phone;
             $userDetail->save();
 

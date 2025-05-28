@@ -1,18 +1,19 @@
 @extends('admin.layouts.app')
+
 @section('style')
-    <style>
-        
-    </style>
+<style>
+    /* Custom styles if needed */
+</style>
 @endsection  
+
 @section('content')
 <div class="container-fluid flex-grow-1 container-p-y">
     <div class="row">
         <div class="col-md-6">
-            <h4 class="py-3 mb-4">
-                <span class="">Attendance</span>
-            </h4>
+            <h4 class="py-3 mb-4"><span class="">Attendance</span></h4>
         </div>
     </div>
+
     <div class="row">
         <div class="col-xl-12 col-lg-12">
             <div class="card">
@@ -20,67 +21,67 @@
                     {{ $currentMonthName }} {{ $currentYear }} Attendance Sheet ({{ $totalDays }} Days)
                 </h5>            
                 <div class="table-responsive text-nowrap">
-                  <table class="table table-sm">
-                    <thead>
-                      <tr>
-                        <th>Employee</th>
-                        @for ($day = 1; $day <= $totalDays; $day++)
-                            <th>{{ $day }}</th>
-                        @endfor
-                      </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        @foreach($employees as $employee)
+                    <table class="table table-sm">
+                        <thead>
                             <tr>
-                                <td><i class="fab fa-angular fa-lg text-danger me-3"></i> 
-                                    <span class="fw-medium">{{ $employee->full_name }}</span>
-                                </td>
+                                <th>Employee</th>
                                 @for ($day = 1; $day <= $totalDays; $day++)
-                                    @php
-                                        $date = \Carbon\Carbon::create($currentYear, $currentMonth, $day);
-                                        $dayOfWeek = $date->format('l'); // e.g., 'Saturday'
-                                        $key = $employee->id . '_' . $day;
-
-                                        // Mark weekends as Leave
-                                        if (in_array($dayOfWeek, ['Saturday', 'Sunday'])) {
-                                            $status = 'L';
-                                        } else {
-                                            $status = isset($attendances[$key]) ? $attendances[$key][0]->status : '-';
-                                        }
-
-                                        $shortStatus = $status;
-
-                                        // Set text color based on status
-                                        $colorClass = match($shortStatus) {
-                                            'P' => 'text-success fw-bolder',
-                                            'A' => 'text-danger fw-bolder',
-                                            'L' => 'text-warning fw-bolder',
-                                            default => 'text-muted fw-bolder',
-                                        };
-
-                                        // Add background highlight for current day
-                                        $tdClass = $colorClass;
-                                        if ($day == \Carbon\Carbon::now()->day) {
-                                            $tdClass .= ' bg-light';
-                                        }
-                                    @endphp
-                                    <td class="{{ $tdClass }} {{ in_array($dayOfWeek, ['Saturday', 'Sunday']) ? '' : 'addatendence' }}">
-                                        <input type="hidden" name="user_id" value="{{ $employee->id }}">
-                                        <input type="hidden" name="date" value="{{ $date->toDateString() }}">
-                                        {{ $shortStatus }}
-                                    </td>
+                                    <th>{{ $day }}</th>
                                 @endfor
                             </tr>
-                        @endforeach
-                    </tbody>
-                  </table>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            @foreach($employees as $employee)
+                                <tr>
+                                    <td>
+                                        <i class="fab fa-angular fa-lg text-danger me-3"></i>
+                                        <span class="fw-medium">{{ $employee->full_name }}</span>
+                                    </td>
+
+                                    @for ($day = 1; $day <= $totalDays; $day++)
+                                        @php
+                                            $date = \Carbon\Carbon::create($currentYear, $currentMonth, $day);
+                                            $dayOfWeek = $date->format('l'); // e.g., 'Saturday'
+                                            $key = $employee->id . '_' . $day;
+
+                                            // Default to 'L' on weekends, otherwise get stored status or '-'
+                                            $status = isset($attendances[$key]) 
+                                                ? $attendances[$key][0]->status 
+                                                : (in_array($dayOfWeek, ['Saturday', 'Sunday']) ? 'L' : '-');
+
+                                            $shortStatus = $status;
+
+                                            // Color class for status
+                                            $colorClass = match($shortStatus) {
+                                                'P' => 'text-success fw-bolder',
+                                                'A' => 'text-danger fw-bolder',
+                                                'L' => 'text-warning fw-bolder',
+                                                default => 'text-muted fw-bolder',
+                                            };
+
+                                            // Add highlight for current day
+                                            $tdClass = $colorClass;
+                                            if ($day == \Carbon\Carbon::now()->day && $currentMonth == \Carbon\Carbon::now()->month && $currentYear == \Carbon\Carbon::now()->year) {
+                                                $tdClass .= ' bg-light';
+                                            }
+                                        @endphp
+                                        <td class="{{ $tdClass }} addatendence" style="cursor:pointer;">
+                                            <input type="hidden" name="user_id" value="{{ $employee->id }}">
+                                            <input type="hidden" name="date" value="{{ $date->toDateString() }}">
+                                            {{ $shortStatus }}
+                                        </td>
+                                    @endfor
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Attendance Modal -->
 <div class="modal fade" id="attendanceModal" tabindex="-1" aria-labelledby="attendanceModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -109,7 +110,6 @@
     </div>
   </div>
 </div>
-
 @endsection
 
 @section('script')

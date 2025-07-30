@@ -15,44 +15,48 @@ use Mail, DB, Hash, Validator, Session, File,Exception;
 
 class AttendenceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $now = Carbon::now();
+        // Month/year from request or default to current
+        $currentMonth = $request->input('month', Carbon::now()->month);
+        $currentYear = $request->input('year', Carbon::now()->year);
+
+        $now = Carbon::create($currentYear, $currentMonth, 1);
         $totalDays = $now->daysInMonth;
         $currentMonthName = $now->format('F');
-        $currentYear = $now->year;
-        $currentMonth = Carbon::now()->month;
 
-        // Get attendance for the current month
-        $startDate = Carbon::now()->startOfMonth()->toDateString();
-        $endDate = Carbon::now()->endOfMonth()->toDateString();
+        $startDate = $now->copy()->startOfMonth()->toDateString();
+        $endDate = $now->copy()->endOfMonth()->toDateString();
 
         $employees = User::where('role', 'user')->where('status', 'active')->orderBy('id', 'desc')->get();
 
-        // Loop through each day of the current month up to today
-        for ($day = 1; $day <= $now->day; $day++) {
-            $date = Carbon::createFromDate($currentYear, $now->month, $day)->toDateString();
+        // Attendance insert sirf current month/year ke liye
+        if ($currentMonth == Carbon::now()->month && $currentYear == Carbon::now()->year) {
+            $lastDay = Carbon::now()->day;
+            for ($day = 1; $day <= $lastDay; $day++) {
+                $date = Carbon::createFromDate($currentYear, $currentMonth, $day)->toDateString();
 
-            foreach ($employees as $employee) {
-                $alreadyExists = UserAttendances::where('user_id', $employee->id)
-                    ->whereDate('date', $date)
-                    ->exists();
+                foreach ($employees as $employee) {
+                    $alreadyExists = UserAttendances::where('user_id', $employee->id)
+                        ->whereDate('date', $date)
+                        ->exists();
 
-                if (!$alreadyExists) {
-                    UserAttendances::create([
-                        'user_id' => $employee->id,
-                        'date' => $date,
-                        'status' => 'P',
-                    ]);
+                    if (!$alreadyExists) {
+                        UserAttendances::create([
+                            'user_id' => $employee->id,
+                            'date' => $date,
+                            'status' => 'P',
+                        ]);
+                    }
                 }
             }
         }
 
         $attendances = UserAttendances::whereBetween('date', [$startDate, $endDate])
-        ->get()
-        ->groupBy(function ($item) {
-            return $item->user_id . '_' . Carbon::parse($item->date)->day;
-        });
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->user_id . '_' . Carbon::parse($item->date)->day;
+            });
 
         return view("admin.attendence.index", compact('totalDays', 'currentMonthName', 'currentYear', 'employees','startDate','endDate','attendances','currentMonth'));
     }

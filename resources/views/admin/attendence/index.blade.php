@@ -14,6 +14,28 @@
         </div>
     </div>
 
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <form method="GET" action="{{ route('admin.attendence.index') }}" class="form-inline">
+                <div class="input-group">
+                    <select name="month" class="form-select" required>
+                        @for ($m = 1; $m <= 12; $m++)
+                            <option value="{{ sprintf('%02d', $m) }}" {{ $currentMonth == $m ? 'selected' : '' }}>
+                                {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                            </option>
+                        @endfor
+                    </select>
+                    <select name="year" class="form-select" required>
+                        @for ($y = now()->year; $y >= now()->year - 5; $y--)
+                            <option value="{{ $y }}" {{ $currentYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                        @endfor
+                    </select>
+                    <button type="submit" class="btn btn-primary">Go</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-xl-12 col-lg-12">
             <div class="card">
@@ -41,17 +63,16 @@
                                     @for ($day = 1; $day <= $totalDays; $day++)
                                         @php
                                             $date = \Carbon\Carbon::create($currentYear, $currentMonth, $day);
-                                            $dayOfWeek = $date->format('l'); // e.g., 'Saturday'
+                                            $dayOfWeek = $date->format('l');
                                             $key = $employee->id . '_' . $day;
 
-                                            // Default to 'L' on weekends, otherwise get stored status or '-'
-                                            $status = isset($attendances[$key]) 
-                                                ? $attendances[$key][0]->status 
-                                                : (in_array($dayOfWeek, ['Saturday', 'Sunday']) ? 'L' : '-');
+                                            // Show status only if attendance record exists, otherwise blank
+                                            $status = isset($attendances[$key])
+                                                ? $attendances[$key][0]->status
+                                                : '';
 
                                             $shortStatus = $status;
 
-                                            // Color class for status
                                             $colorClass = match($shortStatus) {
                                                 'P' => 'text-success fw-bolder',
                                                 'A' => 'text-danger fw-bolder',
@@ -59,7 +80,6 @@
                                                 default => 'text-muted fw-bolder',
                                             };
 
-                                            // Add highlight for current day
                                             $tdClass = $colorClass;
                                             if ($day == \Carbon\Carbon::now()->day && $currentMonth == \Carbon\Carbon::now()->month && $currentYear == \Carbon\Carbon::now()->year) {
                                                 $tdClass .= ' bg-light';

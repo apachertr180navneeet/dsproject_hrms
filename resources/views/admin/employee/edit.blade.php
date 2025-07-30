@@ -6,11 +6,11 @@
             margin-top: 2px;
         }
     </style>
-@endsection  
+@endsection
 @section('content')
 <div class="container-fluid flex-grow-1 container-p-y">
     <h4 class="py-3 mb-4">
-        <span class="text-muted fw-light">Employee /</span> Edit 
+        <span class="text-muted fw-light">Employee /</span> Edit
     </h4>
     <div class="row">
         <div class="col-xl-12 col-lg-12">
@@ -71,7 +71,7 @@
                                     <div class="text-danger" id="error-profile"></div>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <img src="{{ $getUser->avatar ? asset('storage/' . $getUser->avatar) : asset('images/default.png') }}" alt="Profile Image" style="width: 28%; border: 1px solid red; padding: 1%;">
+                                    <img src="{{ $getUser->avatar ? asset('storage/' . $getUser->avatar) : asset('images/default.png') }}" alt="Profile Image" style="width: 28%; border: 1px solid gary; padding: 1%;">
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary" id="basic_info_submit">Save</button>
@@ -117,17 +117,24 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="passport_expiry_date" class="form-label">Expiry Date</label>
-                                    <input class="form-control" type="date" id="passport_expiry_date" name="passport_expiry_date" placeholder="" value="{{ $documents['Passport']['expirydate'] }}" />
+                                    <input class="form-control" type="date" id="passport_expiry_date" name="passport_expiry_date" placeholder="" value="{{ isset($documents['Passport']['expirydate']) ? $documents['Passport']['expirydate'] : '' }}" />
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="passport_document_file" class="form-label">Document File</label>
                                     <input type="file" class="form-control" id="passport_document_file" name="passport_document_file"/>
                                 </div>
+                                @php
+                                    $passportFile = $documents['Passport']['file'] ?? null;
+                                    $passportPath = $passportFile && Storage::disk('public')->exists($passportFile)
+                                        ? asset('storage/' . $passportFile)
+                                        : asset('images/default.png');
+                                @endphp
+
                                 <div class="col-md-2 mb-3">
-                                    <img src="{{ $documents['Passport']['file'] ? asset('storage/' . $documents['Passport']['file']) : asset('images/default.png') }}" alt="Profile Image" style="width: 50%; border: 1px solid red; padding: 1%;">
+                                    <img src="{{ $passportPath }}" alt="Profile Image" style="width: 50%; border: 1px solid gray; padding: 1%;">
                                 </div>
-                                
-                                
+
+
                                 <h5>BRP/Visa</h5>
                                 <div class="col-md-4 mb-3">
                                     <label for="visa" class="form-label">Document Name</label>
@@ -135,17 +142,32 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="visa_expiry_date" class="form-label">Expiry Date</label>
-                                    <input class="form-control" type="date" value="{{ $documents['BRP/Visa']['expirydate'] }}" id="visa_expiry_date" name="visa_expiry_date" placeholder="" />
+                                    <input class="form-control" type="date" value="{{ isset($documents['BRP/Visa']['expirydate']) ? $documents['BRP/Visa']['expirydate'] : '' }}" id="visa_expiry_date" name="visa_expiry_date" placeholder="" />
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="visa_document_file" class="form-label">Document File</label>
                                     <input type="file" class="form-control" id="visa_document_file" name="visa_document_file"/>
                                 </div>
+                                @php
+                                    $brpVisaFile = $documents['BRP/Visa']['file'] ?? null;
+                                    $brpVisaPath = $brpVisaFile && Storage::disk('public')->exists($brpVisaFile)
+                                        ? asset('storage/' . $brpVisaFile)
+                                        : asset('images/default.png');
+                                @endphp
+
+                                @php
+                                    $brpVisaFile = $documents['BRP/Visa']['file'] ?? null;
+                                @endphp
+
                                 <div class="col-md-2 mb-3">
-                                    <img src="{{ $documents['BRP/Visa']['file'] ? asset('storage/' . $documents['BRP/Visa']['file']) : asset('images/default.png') }}" alt="Profile Image" style="width: 50%; border: 1px solid red; padding: 1%;">
+                                    @if($brpVisaFile && Storage::disk('public')->exists($brpVisaFile))
+                                        <img src="{{ asset('storage/' . $brpVisaFile) }}" alt="Profile Image" style="width: 50%; border: 1px solid gray; padding: 1%;">
+                                    @else
+                                        <p>No image found</p>
+                                    @endif
                                 </div>
-                                
-                                
+
+
                                 <h5>License</h5>
                                 <div class="col-md-4 mb-3">
                                     <label for="license" class="form-label">Document Name</label>
@@ -153,14 +175,22 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="license_expiry_date" class="form-label">Expiry Date</label>
-                                    <input class="form-control" type="date" value="{{ $documents['License']['expirydate'] }}" id="license_expiry_date" name="license_expiry_date" placeholder="" />
+                                    <input class="form-control" type="date" value="{{ isset($documents['License']['expirydate']) ? $documents['License']['expirydate'] : '' }}" id="license_expiry_date" name="license_expiry_date" placeholder="" />
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="license_document_file" class="form-label">Document File</label>
                                     <input type="file" class="form-control" id="license_document_file" name="license_document_file"/>
                                 </div>
+                                @php
+                                    $licenseFile = $documents['License']['file'] ?? null;
+                                @endphp
+
                                 <div class="col-md-2 mb-3">
-                                    <img src="{{ $documents['License']['file'] ? asset('storage/' . $documents['License']['file']) : asset('images/default.png') }}" alt="Profile Image" style="width: 50%; border: 1px solid red; padding: 1%;">
+                                    @if($licenseFile && Storage::disk('public')->exists($licenseFile))
+                                        <img src="{{ asset('storage/' . $licenseFile) }}" alt="Profile Image" style="width: 50%; border: 1px solid gray; padding: 1%;">
+                                    @else
+                                        <p>No image found</p>
+                                    @endif
                                 </div>
 
 
@@ -171,14 +201,22 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="dbs_expiry_date" class="form-label">Expiry Date</label>
-                                    <input class="form-control" type="date" value="{{ $documents['DBS']['expirydate'] }}" id="dbs_expiry_date" name="dbs_expiry_date" placeholder="" />
+                                    <input class="form-control" type="date" value="{{ isset($documents['DBS']['expirydate']) ? $documents['DBS']['expirydate'] : '' }}" id="dbs_expiry_date" name="dbs_expiry_date" placeholder="" />
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="dbs_document_file" class="form-label">Document File</label>
                                     <input type="file" class="form-control" id="dbs_document_file" name="dbs_document_file"/>
                                 </div>
+                                @php
+                                    $dbsFile = $documents['DBS']['file'] ?? null;
+                                @endphp
+
                                 <div class="col-md-2 mb-3">
-                                    <img src="{{ $documents['DBS']['file'] ? asset('storage/' . $documents['DBS']['file']) : asset('images/default.png') }}" alt="Profile Image" style="width: 50%; border: 1px solid red; padding: 1%;">
+                                    @if($dbsFile && Storage::disk('public')->exists($dbsFile))
+                                        <img src="{{ asset('storage/' . $dbsFile) }}" alt="Profile Image" style="width: 50%; border: 1px solid gray; padding: 1%;">
+                                    @else
+                                        <p>No image found</p>
+                                    @endif
                                 </div>
 
 
@@ -189,14 +227,23 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="cscscard_expiry_date" class="form-label">Expiry Date</label>
-                                    <input class="form-control" type="date" value="{{ $documents['CSCScard']['expirydate'] }}" id="cscscard_expiry_date" name="cscscard_expiry_date" placeholder="" />
+                                    <input class="form-control" type="date" value="{{ isset($documents['CSCScard']['expirydate']) ? $documents['CSCScard']['expirydate'] : '' }}" id="cscscard_expiry_date" name="cscscard_expiry_date" placeholder="" />
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="cscscard_document_file" class="form-label">Document File</label>
                                     <input type="file" class="form-control" id="cscscard_document_file" name="cscscard_document_file" />
                                 </div>
+
+                                @php
+                                    $CSCScardFile = $documents['CSCScard']['file'] ?? null;
+                                @endphp
+
                                 <div class="col-md-2 mb-3">
-                                    <img src="{{ $documents['CSCScard']['file'] ? asset('storage/' . $documents['CSCScard']['file']) : asset('images/default.png') }}" alt="Profile Image" style="width: 50%; border: 1px solid red; padding: 1%;">
+                                    @if($CSCScardFile && Storage::disk('public')->exists($CSCScardFile))
+                                        <img src="{{ asset('storage/' . $CSCScardFile) }}" alt="Profile Image" style="width: 50%; border: 1px solid gray; padding: 1%;">
+                                    @else
+                                        <p>No image found</p>
+                                    @endif
                                 </div>
 
                                 <h5>NPORS/CPCS card</h5>
@@ -206,14 +253,22 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="nrors_cpcs_expiry_date" class="form-label">Expiry Date</label>
-                                    <input class="form-control" type="date" value="{{ $documents['NPORS/CPCScard']['expirydate'] }}" id="nrors_cpcs_expiry_date" name="nrors_cpcs_expiry_date" placeholder="" />
+                                    <input class="form-control" type="date" value="{{ isset($documents['NPORS/CPCScard']['expirydate']) ? $documents['NPORS/CPCScard']['expirydate'] : '' }}" id="nrors_cpcs_expiry_date" name="nrors_cpcs_expiry_date" placeholder="" />
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="nrors_cpcs_document_file" class="form-label">Document File</label>
                                     <input type="file" class="form-control" id="nrors_cpcs_document_file" name="nrors_cpcs_document_file" />
                                 </div>
+                                @php
+                                    $nporsFile = $documents['NPORS/CPCScard']['file'] ?? null;
+                                @endphp
+
                                 <div class="col-md-2 mb-3">
-                                    <img src="{{ $documents['NPORS/CPCScard']['file'] ? asset('storage/' . $documents['NPORS/CPCScard']['file']) : asset('images/default.png') }}" alt="Profile Image" style="width: 50%; border: 1px solid red; padding: 1%;">
+                                    @if($nporsFile && Storage::disk('public')->exists($nporsFile))
+                                        <img src="{{ asset('storage/' . $nporsFile) }}" alt="Profile Image" style="width: 50%; border: 1px solid gray; padding: 1%;">
+                                    @else
+                                        <p>No image found</p>
+                                    @endif
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary" id="basic_info_submit">Save</button>
@@ -222,7 +277,7 @@
                 </div>
             </div>
         </div>
-    </div>    
+    </div>
 </div>
 @endsection
 @section('script')
@@ -249,13 +304,13 @@
         $(document).ready(function () {
             $('#basic_info_submit').on('click', function (e) {
                 e.preventDefault();
-        
+
                 // Clear previous error messages
                 $('.text-danger').text('');
-        
+
                 let formData = new FormData($('#basicInfoForm')[0]);
                 console.log(formData);
-        
+
                 $.ajax({
                     url: "{{ route('admin.employee.save.basic.info') }}",
                     type: "POST",
@@ -273,11 +328,11 @@
                         if (response.success) {
                             alert('Basic info saved successfully!');
                             $('#employee_id').val(response.user_id);
-                    
+
                             // Switch tabs
                             $('#basicinformation').removeClass('active show');
                             $('#employeedetail').addClass('active show');
-                    
+
                             // Update the tab buttons
                             $('.nav-link').removeClass('active'); // Remove active class from all tabs
                             $('button[data-bs-target="#employeedetail"]').addClass('active'); // Add active class to the target tab
@@ -291,12 +346,12 @@
                                 alert('Something went wrong!');
                             }
                         }
-        
+
                         $('#basic_info_submit').prop('disabled', false).text('Save');
                     }, // <-- Add a comma here
                     error: function (xhr) {
                         $('#basic_info_submit').prop('disabled', false).text('Save');
-        
+
                         console.log(xhr.responseJSON); // Log the entire response for debugging
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
@@ -314,13 +369,13 @@
 
             $('#submit_employee_detail').on('click', function (e) {
                 e.preventDefault();
-        
+
                 // Clear previous error messages
                 $('.text-danger').text('');
-        
+
                 let formData = new FormData($('#employeeinfoForm')[0]);
                 console.log(formData);
-        
+
                 $.ajax({
                     url: "{{ route('admin.employee.save.employee.detail') }}",
                     type: "POST",
@@ -338,11 +393,11 @@
                         if (response.success) {
                             alert('Employee Detail saved successfully!');
                             $('#doc_employee_id').val(response.user_id);
-                    
+
                             // Switch tabs
                             $('#employeedetail').removeClass('active show');
                             $('#document').addClass('active show');
-                    
+
                             // Update the tab buttons
                             $('.nav-link').removeClass('active'); // Remove active class from all tabs
                             $('button[data-bs-target="#document"]').addClass('active'); // Add active class to the target tab
@@ -356,12 +411,12 @@
                                 alert('Something went wrong!');
                             }
                         }
-        
+
                         $('#submit_employee_detail').prop('disabled', false).text('Save');
                     }, // <-- Add a comma here
                     error: function (xhr) {
                         $('#submit_employee_detail').prop('disabled', false).text('Save');
-        
+
                         console.log(xhr.responseJSON); // Log the entire response for debugging
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
@@ -375,7 +430,7 @@
                     }
                 });
             });
-        });   
+        });
     </script>
-    
+
 @endsection
